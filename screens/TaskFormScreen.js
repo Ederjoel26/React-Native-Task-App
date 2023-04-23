@@ -10,20 +10,14 @@ const TaskFormScreen = ({navigation, route}) => {
         description: ""
     });
 
-    const [isEdit, setIsEdit] = useState(false);
-
     const handleChange = (name, value) => setTask({...task, [name]: value});
     
     const handleSubmit = async () => {
-        if(!isEdit){
-            await AsyncStorage.setItem("title", task.title);
-            await AsyncStorage.setItem("description", task.description);
-        }else{
-            await AsyncStorage.setItem("title", task.title);
-            await AsyncStorage.setItem("description", task.description);
-        }
-        const {id} = route.params;
-        navigation.navigate("HomeScreen", { id: id});
+        if(task.title === "" || task.description === "") return;
+        await AsyncStorage.setItem("title", task.title);
+        await AsyncStorage.setItem("description", task.description);
+        if(route.params && route.params.id) await AsyncStorage.setItem("id", route.params.id.toString());
+        navigation.navigate("HomeScreen");
     };
 
     useEffect(() => {
@@ -46,12 +40,20 @@ const TaskFormScreen = ({navigation, route}) => {
                 placeholderTextColor="#576554"
                 onChangeText={(text) => handleChange("description", text)}
                 value={task.description}/>
-            <TouchableOpacity 
-                style={styles.botonSave}
-                onPress={handleSubmit}>
-                <Text 
-                    style={styles.botonText}>Save Task</Text>
-            </TouchableOpacity>
+            {route.params && route.params.id ? ( 
+                <TouchableOpacity 
+                    style={styles.botonEditing}
+                    onPress={handleSubmit}>
+                    <Text 
+                        style={styles.botonText}>Editing Task</Text>
+                </TouchableOpacity>) 
+            : (
+                <TouchableOpacity 
+                    style={styles.botonSave}
+                    onPress={handleSubmit}>
+                    <Text 
+                        style={styles.botonText}>Save Task</Text>
+                </TouchableOpacity>)}
         </Layout>
     );
 };
@@ -75,6 +77,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 3,
         backgroundColor: "#10ac84",
+        width: "90%",
+    },
+    botonEditing:{
+        paddingTop: 10,
+        paddingBottom: 10,
+        borderRadius: 5,
+        marginBottom: 3,
+        backgroundColor: "#e58e26",
         width: "90%",
     },
     botonText:{

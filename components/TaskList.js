@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, FlatList, RefreshControl } from "react-native";
 import TaskItem from "./TaskItem";
 
-const TaskList = ({id}) => {
+const TaskList = () => {
 
     const [tasks, setTasks] = useState([
         { id: 1, name: "Hacer tarea" , description: "Tarea cliente servidor"},
@@ -29,22 +29,22 @@ const TaskList = ({id}) => {
             name: title,
             description: description
         };
-
-        if(id === -1){
-            console.log("entro");
+        
+        const value = await AsyncStorage.getItem("id");
+        if(value !== null){
             const newTasks = tasks.map(task => {
-                if(task.id === id){
+                if(task.id === parseInt(value)){
                     task.name = title;
                     task.description = description;
                 }
                 return task;
-            })
+            });
             setTasks(newTasks);
-            
         }else{
             setTasks([...tasks, task]);
             setLastIndex(lastIndex + 1);
         }
+        await AsyncStorage.removeItem("id");
         await AsyncStorage.removeItem("title");
         await AsyncStorage.removeItem("description");
     };
